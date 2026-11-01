@@ -1,10 +1,7 @@
-# petfamily
+# petfamily — «Моя стая»
 
-Фронтенд проекта «Моя стая» (проект FamilyOS 12) — семейный центр заботы о собаке.
+Семейный центр заботы о собаке: профиль питомца, «Забота», «Рядом».
 
-- Стек: Astro 7, Node >= 22.23.4
-- Сборка: `npm ci && npm run build` → `dist`
-- Хостинг: Cloudflare Pages (проект `petfamily`, домен `petfamily.beliberde.net` через nginx)
-- Бэкенд: FamilyOS API (`https://familyos.beliberde.net/api/v1`)
-
-Деплой — автоматический: пуш в `main` → сборка и публикация на Pages.
+- Статический каркас (без сборки): деплой — Cloudflare Pages из ветки `main`.
+- Бэкенд — FamilyOS API: `https://familyos.beliberde.net/api/v1`.
+- Домен: https://petfamily.beliberde.net (nginx-прокси на VPS → Pages).
