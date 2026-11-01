@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 
 const CATEGORIES = new Set(['vet', 'boarding', 'grooming', 'park', 'shelter', 'shop']);
-const REQUIRED = ['id', 'category', 'name', 'address', 'district', 'lat', 'lon', 'source', 'checked_at'];
+const REQUIRED = ['id', 'category', 'name', 'address', 'lat', 'lon', 'source', 'checked_at'];
 const LAT_MIN = 55.1, LAT_MAX = 56.1, LON_MIN = 36.7, LON_MAX = 38.5;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const URL_RE = /^https?:\/\/[^\s]+$/i;
@@ -57,6 +57,11 @@ function main() {
     }
     if (typeof spot.lon === 'number' && (spot.lon < LON_MIN || spot.lon > LON_MAX)) {
       errors.push(`${tag}: долгота ${spot.lon} вне Москвы (36.70-38.50)`);
+    }
+    for (const b of ['open_24h', 'home_visit', 'inpatient']) {
+      if (spot[b] !== undefined && spot[b] !== null && typeof spot[b] !== 'boolean') {
+        errors.push(`${tag}: ${b} должен быть boolean`);
+      }
     }
     if (spot.lat !== undefined && typeof spot.lat !== 'number') {
       errors.push(`${tag}: lat должен быть числом`);

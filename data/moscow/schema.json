@@ -1,1 +1,120 @@
-{"$schema": "https://json-schema.org/draft/2020-12/schema", "description": "Точки карты Москвы для проекта Моя стая. Границы координат покрывают Москву в административных границах с запасом и помечены как решение проекта.", "properties": {"address": {"description": "Адрес точки", "type": "string"}, "category": {"description": "Категория точки", "enum": ["boarding", "grooming", "park", "shelter", "shop", "vet"]}, "checked_at": {"description": "Дата проверки записи, YYYY-MM-DD", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "type": "string"}, "district": {"description": "Округ Москвы", "type": "string"}, "hours": {"description": "Часы работы", "type": ["string", "null"]}, "id": {"description": "Стабильный строковый идентификатор", "type": "string"}, "lat": {"description": "Широта, Москва с запасом: 55.10-56.10", "maximum": 56.1, "minimum": 55.1, "type": "number"}, "lon": {"description": "Долгота, Москва с запасом: 36.70-38.50", "maximum": 38.5, "minimum": 36.7, "type": "number"}, "name": {"description": "Название точки", "type": "string"}, "phone": {"description": "Телефон", "type": ["string", "null"]}, "price": {"description": "Цена, если есть", "type": ["string", "null"]}, "site": {"description": "Сайт, если есть", "format": "uri", "type": ["string", "null"]}, "source": {"description": "URL источника данных", "format": "uri", "type": "string"}}, "required": ["address", "category", "checked_at", "district", "id", "lat", "lon", "name", "source"], "title": "MoscowSpot", "type": "object"}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Точки карты Москвы для проекта Моя стая. Границы координат покрывают Москву в административных границах с запасом и помечены как решение проекта.",
+  "properties": {
+    "address": {
+      "description": "Адрес точки",
+      "type": "string"
+    },
+    "category": {
+      "description": "Категория точки",
+      "enum": [
+        "boarding",
+        "grooming",
+        "park",
+        "shelter",
+        "shop",
+        "vet"
+      ]
+    },
+    "checked_at": {
+      "description": "Дата проверки записи, YYYY-MM-DD",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "type": "string"
+    },
+    "district": {
+      "description": "Округ Москвы, null если в источнике не указан",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hours": {
+      "description": "Часы работы",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "Стабильный строковый идентификатор",
+      "type": "string"
+    },
+    "lat": {
+      "description": "Широта, Москва с запасом: 55.10-56.10",
+      "maximum": 56.1,
+      "minimum": 55.1,
+      "type": "number"
+    },
+    "lon": {
+      "description": "Долгота, Москва с запасом: 36.70-38.50",
+      "maximum": 38.5,
+      "minimum": 36.7,
+      "type": "number"
+    },
+    "name": {
+      "description": "Название точки",
+      "type": "string"
+    },
+    "phone": {
+      "description": "Телефон",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "price": {
+      "description": "Цена, если есть",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "site": {
+      "description": "Сайт, если есть",
+      "format": "uri",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source": {
+      "description": "URL источника данных",
+      "format": "uri",
+      "type": "string"
+    },
+    "open_24h": {
+      "description": "Круглосуточно: выведено из поля hours, true только при явном указании",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "home_visit": {
+      "description": "Выезд: true только при явном да в источнике",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "inpatient": {
+      "description": "Стационар: true только при явном да в источнике",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "address",
+    "category",
+    "checked_at",
+    "id",
+    "lat",
+    "lon",
+    "name",
+    "source"
+  ],
+  "title": "MoscowSpot",
+  "type": "object"
+}

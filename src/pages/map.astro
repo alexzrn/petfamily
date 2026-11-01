@@ -1,0 +1,169 @@
+---
+import '../styles/global.css';
+import spots from '../../data/moscow/spots.json';
+
+const site = 'https://petfamily.beliberde.net';
+const year = new Date().getFullYear();
+const counts = {};
+for (const s of spots) counts[s.category] = (counts[s.category] || 0) + 1;
+const districts = [...new Set(spots.map((s) => s.district).filter(Boolean))].sort();
+const labels = { vet: 'Клиники', boarding: 'Передержка', grooming: 'Груминг', park: 'Площадки', shelter: 'Приюты', shop: 'Зоомагазины' };
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Карта Москвы: ветклиники, площадки, приюты | Моя стая</title>
+    <meta name="description" content="Точки Москвы для владельцев собак и кошек: ветклиники, площадки, приюты. Фильтры по категории, признаки «круглосуточно», «выезд», «стационар»." />
+    <link rel="canonical" href={site + '/map'} />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      .map-page { padding-bottom: 40px; }
+      #map { height: 340px; border-radius: 12px; border: 1px solid var(--line); z-index: 0; }
+      .filters { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+      .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip { min-height: 44px; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font-size: 15px; cursor: pointer; }
+      .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .filter-line { display: flex; gap: 8px; flex-wrap: wrap; }
+      .filter-line select, .filter-line input[type="search"] { min-height: 44px; font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff; max-width: 100%; }
+      .filter-line input[type="search"] { flex: 1 1 180px; }
+      .result-count { color: var(--muted); font-size: 14px; }
+      .spot-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+      .spot-list li { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff; }
+      .spot-list h3 { margin: 0 0 4px; font-size: 16px; }
+      .spot-list p { margin: 2px 0; font-size: 14px; color: var(--muted); }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-head">
+      <div class="wrap site-head__inner">
+        <a class="brand" href="/">Моя стая</a>
+        <a class="head-link" href="/">На главную</a>
+      </div>
+    </header>
+
+    <main class="wrap map-page">
+      <h1>Карта Москвы</h1>
+      <p>Ветклиники, площадки, приюты и другие точки для владельцев собак и кошек. Данных по округам в источниках почти нет, фильтр округа показывает только то, что указано.</p>
+
+      <div class="filters" role="search" aria-label="Фильтры точек">
+        <div class="chip-row" id="cat-row">
+          <button class="chip" data-cat="" aria-pressed="true">Все</button>
+          {Object.entries(labels).map(([cat, label]) => (
+            <button class="chip" data-cat={cat} aria-pressed="false">{label} ({counts[cat] || 0})</button>
+          ))}
+        </div>
+        <div class="filter-line">
+          {districts.length > 0 ? (
+            <select id="f-district" aria-label="Округ">
+              <option value="">Все округа</option>
+              {districts.map((d) => <option value={d}>{d}</option>)}
+            </select>
+          ) : (
+            <select id="f-district" aria-label="Округ" disabled>
+              <option value="">Округ не указан в данных</option>
+            </select>
+          )}
+          <input id="f-search" type="search" placeholder="Поиск по названию" aria-label="Поиск по названию" />
+        </div>
+        <div class="chip-row" id="flag-row">
+          <button class="chip" data-flag="open_24h" aria-pressed="false">Круглосуточно</button>
+          <button class="chip" data-flag="home_visit" aria-pressed="false">Выезд</button>
+          <button class="chip" data-flag="inpatient" aria-pressed="false">Со стационаром</button>
+        </div>
+      </div>
+
+      <div id="map" role="application" aria-label="Карта точек Москвы"></div>
+      <p class="result-count" id="result-count" role="status"></p>
+      <ul class="spot-list" id="spot-list"></ul>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <p>Точки собраны из открытых источников, у каждой указан источник. Координат нет у части точек, такие на карту не попали.</p>
+        <p class="site-foot__legal">© {year} Моя стая</p>
+      </div>
+    </footer>
+
+    <script is:inline define:vars={{ spotsData: spots }}>
+      window.__SPOTS__ = spotsData;
+    </script>
+    <script is:inline>
+      (() => {
+        const all = window.__SPOTS__ || [];
+        const state = { cat: '', district: '', q: '', open_24h: false, home_visit: false, inpatient: false };
+        function esc(s) {
+          return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function init() {
+          const map = L.map('map').setView([55.7558, 37.6173], 10);
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          }).addTo(map);
+          const layer = L.layerGroup().addTo(map);
+          const list = document.getElementById('spot-list');
+          const count = document.getElementById('result-count');
+          function match(s) {
+            if (state.cat && s.category !== state.cat) return false;
+            if (state.district && s.district !== state.district) return false;
+            if (state.q && !(s.name || '').toLowerCase().includes(state.q)) return false;
+            for (const f of ['open_24h', 'home_visit', 'inpatient']) {
+              if (state[f] && s[f] !== true) return false;
+            }
+            return true;
+          }
+          function render() {
+            const items = all.filter(match);
+            layer.clearLayers();
+            const bounds = [];
+            for (const s of items) {
+              const m = L.marker([s.lat, s.lon]).addTo(layer);
+              const rows = [esc(s.address), s.phone ? esc(s.phone) : '', s.hours ? esc(s.hours) : ''].filter(Boolean).join('<br>');
+              m.bindPopup('<strong>' + esc(s.name) + '</strong><br>' + rows);
+              bounds.push([s.lat, s.lon]);
+            }
+            if (bounds.length > 0) map.fitBounds(bounds, { padding: [20, 20], maxZoom: 13 });
+            count.textContent = 'Показано точек: ' + items.length + ' из ' + all.length;
+            list.innerHTML = items.map((s) =>
+              '<li><h3>' + esc(s.name) + '</h3><p>' + esc(s.address) + '</p>' +
+              (s.phone ? '<p>' + esc(s.phone) + '</p>' : '') +
+              (s.hours ? '<p>' + esc(s.hours) + '</p>' : '') +
+              '</li>'
+            ).join('');
+          }
+          document.getElementById('cat-row').addEventListener('click', (e) => {
+            const b = e.target.closest('button[data-cat]');
+            if (!b) return;
+            state.cat = b.dataset.cat;
+            document.querySelectorAll('#cat-row .chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
+            render();
+          });
+          document.getElementById('flag-row').addEventListener('click', (e) => {
+            const b = e.target.closest('button[data-flag]');
+            if (!b) return;
+            const f = b.dataset.flag;
+            state[f] = !state[f];
+            b.setAttribute('aria-pressed', String(state[f]));
+            render();
+          });
+          const sel = document.getElementById('f-district');
+          if (sel && !sel.disabled) sel.addEventListener('change', () => { state.district = sel.value; render(); });
+          document.getElementById('f-search').addEventListener('input', (e) => {
+            state.q = e.target.value.trim().toLowerCase();
+            render();
+          });
+          render();
+        }
+        if (window.L) { init(); return; }
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+        s.onload = init;
+        document.head.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>
