@@ -48,7 +48,7 @@ const favicon =
             <span class="eyebrow">{t.hero.eyebrow}</span>
             <h1>{t.hero.title}</h1>
             <p class="hero__lead">{t.hero.lead}</p>
-            <p class="hero__price">{t.hero.price}</p>
+            <p class="hero__price">{t.hero.free}</p>
             <div class="hero__actions">
               <a class="btn" href="#access">{t.hero.cta}</a>
               <p class="hero__note">{t.hero.note}</p>
@@ -94,6 +94,10 @@ const favicon =
             }
           </div>
 
+          <div class="map-stub" aria-label="Заглушка карты города">
+            <p>{t.features.mapStub}</p>
+          </div>
+
           <div class="family">
             <h3>{t.features.familyTitle}</h3>
             <p>{t.features.familyText}</p>
@@ -114,22 +118,13 @@ const favicon =
 
       <section class="section" id="price">
         <div class="wrap">
-          <h2 class="section__title">{t.price.heading}</h2>
+          <h2 class="section__title">{t.free.heading}</h2>
           <div class="price-box">
-            <div class="price-box__amount">
-              <strong>{t.price.amount}</strong>
-              <span>{t.price.period}</span>
-            </div>
-            <p class="price-box__note">{t.price.note}</p>
-
-            <h3>{t.price.includedTitle}</h3>
-            <ul class="included">
-              {t.price.included.map((item) => <li>{item}</li>)}
-            </ul>
+            <p class="price-box__note">{t.free.lead}</p>
 
             <div class="price-box__later">
-              <h3>{t.price.laterTitle}</h3>
-              <p>{t.price.later}</p>
+              <h3>{t.free.laterTitle}</h3>
+              <p>{t.free.later}</p>
             </div>
           </div>
         </div>

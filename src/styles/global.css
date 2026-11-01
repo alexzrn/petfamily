@@ -665,3 +665,13 @@ select:focus-visible {
     padding: 6px 10px;
   }
 }
+
+.map-stub {
+  margin-top: 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 26px 20px;
+  text-align: center;
+  color: var(--muted);
+  background: var(--surface);
+}
