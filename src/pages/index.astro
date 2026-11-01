@@ -105,6 +105,33 @@ const favicon =
         </div>
       </section>
 
+      <section class="section" id="map-teaser">
+        <div class="wrap">
+          <h2 class="section__title">{t.mapSection.heading}</h2>
+          <p class="section__sub">{t.mapSection.lead}</p>
+          <p>{t.mapSection.text}</p>
+          <p><a class="btn" href="/map">{t.mapSection.cta}</a></p>
+        </div>
+      </section>
+
+      <section class="section" id="care">
+        <div class="wrap">
+          <h2 class="section__title">{t.care.heading}</h2>
+          <p class="section__sub">{t.care.lead}</p>
+          <p>{t.care.text}</p>
+        </div>
+      </section>
+
+      <section class="section" id="next">
+        <div class="wrap">
+          <h2 class="section__title">{t.next.heading}</h2>
+          <p class="section__sub">{t.next.lead}</p>
+          <ul class="why-list">
+            {t.next.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </section>
+
       <section class="section" id="why">
         <div class="wrap">
           <h2 class="section__title">{t.why.heading}</h2>
