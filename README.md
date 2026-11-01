@@ -2,6 +2,21 @@
 
 Семейный центр заботы о собаке: профиль питомца, «Забота», «Рядом».
 
-- Статический каркас (без сборки): деплой — Cloudflare Pages из ветки `main`.
-- Бэкенд — FamilyOS API: `https://familyos.beliberde.net/api/v1`.
-- Домен: https://petfamily.beliberde.net (nginx-прокси на VPS → Pages).
+- Стек лендинга: Astro 7, Node >= 22.23.4
+- Сборка: `npm ci && npm run build` → `dist`
+- Хостинг: Cloudflare Pages (проект `petfamily`, домен `petfamily.beliberde.net` через nginx)
+- Бэкенд: FamilyOS API (`https://familyos.beliberde.net/api/v1`)
+
+Деплой — автоматический: пуш в `main` → сборка и публикация на Pages.
+
+## Структура
+
+- `src/i18n/ru.ts` — все тексты страницы (ru). Новая локаль: файл `en.ts` с той же формой и строка в `src/i18n/index.ts`.
+- `src/pages/index.astro` — вёрстка, тексты только через словарь.
+- `src/styles/global.css` — стили, один акцентный цвет, мобильная колонка.
+
+Форма раннего доступа работает без бэкенда: клиентская валидация и сообщение об успехе, данные никуда не отправляются.
+
+## Разово: статический каркас
+
+Файлы `index.html`, `app.js`, `styles.css` в корне — отдельный статический каркас. Сборка Astro их не использует: в `dist` попадает только `src/`.
