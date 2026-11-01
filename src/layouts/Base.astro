@@ -1,0 +1,65 @@
+---
+import '../styles/global.css';
+
+type Props = {
+  title: string;
+  description: string;
+  canonical: string;
+  active?: 'map' | 'lost' | 'bot' | '';
+};
+
+const { title, description, canonical, active = '' } = Astro.props;
+const site = 'https://petfamily.beliberde.net';
+const favicon =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23a8401f'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fff'/%3E%3C/svg%3E";
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={site + canonical} />
+    <meta name="theme-color" content="#faf8f4" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Моя стая" />
+    <meta property="og:url" content={site + canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href={favicon} />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">К содержимому</a>
+    <header class="site-head">
+      <div class="wrap site-head__inner">
+        <a class="brand" href="/">Моя стая</a>
+        <nav class="site-nav" aria-label="Основное меню">
+          <a href="/map" aria-current={active === 'map' ? 'page' : undefined}>Карта</a>
+          <a href="/lost" aria-current={active === 'lost' ? 'page' : undefined}>Потеряшки</a>
+          <a href="/bot" aria-current={active === 'bot' ? 'page' : undefined}>Бот</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <p>
+          Точки собраны из открытых источников: сайты клиник, приютов, магазинов и OpenStreetMap. У каждой точки в
+          карточке указан источник и дата проверки. Координаты получены геокодированием адреса, возможна погрешность в
+          пределах квартала.
+        </p>
+        <p class="site-foot__legal">© {new Date().getFullYear()} Моя стая · карта © участники OpenStreetMap</p>
+      </div>
+    </footer>
+  </body>
+</html>

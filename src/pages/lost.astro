@@ -1,0 +1,147 @@
+---
+import Base from '../layouts/Base.astro';
+import board from '../../data/lost/board.json';
+
+const ANIMALS = [
+  { value: 'dog', label: 'Собака' },
+  { value: 'cat', label: 'Кошка' },
+  { value: 'other', label: 'Другое' },
+];
+const districtSet = [...new Set(board.map((b) => b.district).filter(Boolean))].sort();
+const demo = board.filter((b) => b.test).length;
+---
+
+<Base
+  title="Доска потеряшек Москвы — поиск и находки | Моя стая"
+  description="Потерялись или нашли собаку, кошку или другое животное в Москве: доска объявлений с фильтрами по виду и округу, форма «сообщить» с проверкой полей."
+  canonical="/lost"
+  active="lost"
+>
+  <section class="wrap page-head">
+    <h1>Доска потеряшек</h1>
+    <p class="page-head__lead">
+      Поиск и находки животных в Москве. Фильтруйте по виду и округу, смотрите описание и контакт. Если потерялся ваш
+      питомец или вы нашли животное — заполните форму внизу.
+    </p>
+  </section>
+
+  <section class="wrap lost-page" aria-label="Объявления">
+    {
+      demo > 0 && (
+        <p class="banner">
+          На доске пока только демонстрационные объявления ({demo} шт.): они показывают, как выглядит карточка, и
+          помечены словом «пример». Реальные заявки появятся после подключения модерации.
+        </p>
+      )
+    }
+
+    <div class="filters">
+      <div class="chip-row" id="kind-row" role="group" aria-label="Тип объявления">
+        <button class="chip" type="button" data-kind="" aria-pressed="true">Все</button>
+        <button class="chip" type="button" data-kind="lost" aria-pressed="false">Поиск</button>
+        <button class="chip" type="button" data-kind="found" aria-pressed="false">Находки</button>
+      </div>
+      <div class="chip-row" id="animal-row" role="group" aria-label="Вид животного">
+        <button class="chip" type="button" data-animal="" aria-pressed="true">Любое животное</button>
+        {ANIMALS.map((a) => <button class="chip" type="button" data-animal={a.value} aria-pressed="false">{a.label}</button>)}
+      </div>
+      <div class="filter-line">
+        <label class="visually-hidden" for="f-district">Округ</label>
+        <select id="f-district">
+          <option value="">Все округа</option>
+          {districtSet.map((d) => <option value={d}>{d}</option>)}
+        </select>
+      </div>
+    </div>
+
+    <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+    <ul class="chat-list" id="lost-list"></ul>
+    <p class="empty" id="lost-empty" hidden>По этим фильтрам объявлений нет. Сбросьте фильтр или выберите другой округ.</p>
+  </section>
+
+  <section class="wrap form-section" aria-labelledby="report-title">
+    <h2 id="report-title">Сообщить о пропаже или находке</h2>
+    <p class="page-head__lead">
+      Заявка проверяется в браузере и сохраняется черновиком на этом устройстве. Отправки на сервер пока нет: публикация
+      появится, когда подключим модерацию.
+    </p>
+
+    <form class="form-box" id="lost-form" novalidate>
+      <div class="field">
+        <label for="lf-kind">Что случилось</label>
+        <select id="lf-kind" required>
+          <option value="">Выберите</option>
+          <option value="lost">Пропало животное</option>
+          <option value="found">Нашёл животное</option>
+        </select>
+        <p class="field__error" data-error="kind" role="alert"></p>
+      </div>
+
+      <div class="field">
+        <label for="lf-animal">Вид животного</label>
+        <select id="lf-animal" required>
+          <option value="">Выберите</option>
+          {ANIMALS.map((a) => <option value={a.value}>{a.label}</option>)}
+        </select>
+        <p class="field__error" data-error="animal" role="alert"></p>
+      </div>
+
+      <div class="field">
+        <label for="lf-district">Округ</label>
+        <select id="lf-district" required>
+          <option value="">Выберите</option>
+          {districtSet.map((d) => <option value={d}>{d}</option>)}
+        </select>
+        <p class="field__error" data-error="district" role="alert"></p>
+      </div>
+
+      <div class="field">
+        <label for="lf-place">Где (без точного адреса дома)</label>
+        <input id="lf-place" type="text" maxlength="120" placeholder="Парк, станция метро, двор у школы" />
+        <p class="field__error" data-error="place" role="alert"></p>
+      </div>
+
+      <div class="field">
+        <label for="lf-contact">Контакт</label>
+        <input id="lf-contact" type="text" inputmode="tel" placeholder="Телефон или почта" required />
+        <p class="field__error" data-error="contact" role="alert"></p>
+      </div>
+
+      <div class="field form-box__full">
+        <label for="lf-desc">Описание</label>
+        <textarea id="lf-desc" rows="4" maxlength="600" placeholder="Приметы, ошейник, кличка, как подойти. От 20 символов." required></textarea>
+        <p class="field__error" data-error="desc" role="alert"></p>
+      </div>
+
+      <div class="field form-box__full">
+        <label class="consent" for="lf-consent">
+          <input id="lf-consent" type="checkbox" required />
+          <span>Данные мои или есть согласие владельца на публикацию.</span>
+        </label>
+        <p class="field__error" data-error="consent" role="alert"></p>
+      </div>
+
+      <div class="form-box__full">
+        <button class="btn" type="submit">Проверить и сохранить</button>
+      </div>
+    </form>
+
+    <div class="success" id="lost-success" hidden tabindex="-1" role="status">
+      <h3>Черновик сохранён на этом устройстве</h3>
+      <p>
+        На сервер ничего не ушло. Черновик виден ниже — его можно скопировать и отправить волонтёрам или в бот, когда
+        появится публикация.
+      </p>
+    </div>
+
+    <div id="drafts" class="drafts" hidden>
+      <h3>Ваши черновики</h3>
+      <ul class="chat-list" id="drafts-list"></ul>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ items: board }}>
+    window.__LOST__ = items;
+  </script>
+  <script is:inline src="/lost.js"></script>
+</Base>

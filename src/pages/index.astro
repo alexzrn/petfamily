@@ -1,299 +1,98 @@
 ---
-import '../styles/global.css';
-import { getDictionary } from '../i18n';
-
-const t = getDictionary('ru');
-const year = new Date().getFullYear();
-const site = 'https://petfamily.beliberde.net';
-const favicon =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23a8401f'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fff'/%3E%3C/svg%3E";
+import Base from '../layouts/Base.astro';
+import { spots, counts, total, CATEGORY_LABELS, CATEGORY_ORDER } from '../lib/portal';
 ---
 
-<!doctype html>
-<html lang={t.htmlLang}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{t.meta.title}</title>
-    <meta name="description" content={t.meta.description} />
-    <link rel="canonical" href={site + '/'} />
-    <meta name="theme-color" content="#faf8f4" />
-    <meta name="robots" content="index, follow" />
+<Base
+  title="Моя стая — карта Москвы для собак: клиники, площадки, приюты"
+  description={'Карта Москвы для владельцев собак: ' +
+    total +
+    ' точек — ветклиники, площадки для выгула, приюты, передержка, груминг и зоомагазины. Поиск по названию и адресу, фильтры и карточки точек.'}
+  canonical="/"
+>
+  <link slot="head" rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="ru_RU" />
-    <meta property="og:site_name" content={t.meta.siteName} />
-    <meta property="og:url" content={site + '/'} />
-    <meta property="og:title" content={t.meta.ogTitle} />
-    <meta property="og:description" content={t.meta.ogDescription} />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={t.meta.ogTitle} />
-    <meta name="twitter:description" content={t.meta.ogDescription} />
+  <section class="portal-top">
+    <div class="wrap">
+      <h1>Карта мест для собак в Москве</h1>
+      <p class="portal-lead">
+        <strong id="base-total">{total}</strong> точек в базе: клиники, площадки для выгула, приюты, передержка, груминг и
+        зоомагазины. Ищите по названию или адресу, фильтруйте по категории.
+      </p>
 
-    <link rel="icon" href={favicon} />
-  </head>
+      <form class="searchbar" role="search" id="search-form" onsubmit="return false">
+        <label class="visually-hidden" for="q">Поиск по названию и адресу</label>
+        <input
+          id="q"
+          name="q"
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          placeholder="Название, адрес или метро"
+        />
+        <button class="btn btn--search" type="submit">Найти</button>
+      </form>
 
-  <body>
-    <header class="site-head">
-      <div class="wrap site-head__inner">
-        <a class="brand" href="/">{t.nav.brand}</a>
-        <a class="head-link" href="#access">{t.nav.link}</a>
+      <div class="chip-row" id="cat-row" role="group" aria-label="Категории точек">
+        <button class="chip" type="button" data-cat="" aria-pressed="true">Все ({total})</button>
+        {
+          CATEGORY_ORDER.map((cat) => (
+            <button class="chip" type="button" data-cat={cat} aria-pressed="false">
+              {CATEGORY_LABELS[cat]} ({counts[cat]})
+            </button>
+          ))
+        }
       </div>
-    </header>
+    </div>
+  </section>
 
-    <main>
-      <section class="hero">
-        <div class="wrap hero__grid">
-          <div class="hero__main">
-            <span class="eyebrow">{t.hero.eyebrow}</span>
-            <h1>{t.hero.title}</h1>
-            <p class="hero__lead">{t.hero.lead}</p>
-            <p class="hero__price">{t.hero.price}</p>
-            <div class="hero__actions">
-              <a class="btn" href="#access">{t.hero.cta}</a>
-              <p class="hero__note">{t.hero.note}</p>
-            </div>
-          </div>
+  <section class="wrap home-map" aria-label="Карта точек">
+    <div id="map" data-mode="home" role="application" aria-label="Карта Москвы с точками"></div>
+    <div class="home-map__bar">
+      <p class="result-count" id="result-count" role="status" aria-live="polite">Показано точек: {total}</p>
+      <a class="home-map__link" id="open-map" href="/map">Открыть карту с фильтрами →</a>
+    </div>
+  </section>
 
-          <figure class="preview">
-            <div class="preview__card">
-              <span class="preview__label">{t.hero.preview.label}</span>
-              <p class="preview__name">{t.hero.preview.petName}</p>
-              <p class="preview__meta">{t.hero.preview.petMeta}</p>
-              <ul class="preview__rows">
-                {
-                  t.hero.preview.rows.map((row) => (
-                    <li>
-                      <span>{row.title}</span>
-                      <strong>{row.value}</strong>
-                    </li>
-                  ))
-                }
-              </ul>
-              <p class="preview__reminder">{t.hero.preview.reminder}</p>
-            </div>
-            <figcaption class="preview__caption">{t.hero.preview.caption}</figcaption>
-          </figure>
-        </div>
-      </section>
+  <section class="wrap tiles" aria-label="Разделы портала">
+    <a class="tile" href="/map">
+      <span class="tile__kicker">Карта</span>
+      <span class="tile__title">Все точки с фильтрами</span>
+      <span class="tile__text">
+        Круглосуточные клиники, выезд на дом, стационар, площадки и приюты — списком рядом с картой.
+      </span>
+      <span class="tile__more">{total} точек →</span>
+    </a>
+    <a class="tile" href="/lost">
+      <span class="tile__kicker">Потеряшки</span>
+      <span class="tile__title">Кто потерялся и кого нашли</span>
+      <span class="tile__text">Доска по Москве: фильтры по виду животного и округу, форма «сообщить».</span>
+      <span class="tile__more">Открыть доску →</span>
+    </a>
+    <a class="tile" href="/bot">
+      <span class="tile__kicker">Бот</span>
+      <span class="tile__title">Напоминания в Telegram</span>
+      <span class="tile__text">Прививки, таблетки, визиты к врачу. Команды и статус запуска — на странице бота.</span>
+      <span class="tile__more">Что умеет бот →</span>
+    </a>
+  </section>
 
-      <section class="section" id="features">
-        <div class="wrap">
-          <h2 class="section__title">{t.features.heading}</h2>
-          <p class="section__sub">{t.features.sub}</p>
+  <section class="wrap about">
+    <h2>Откуда данные</h2>
+    <p>
+      Точки собраны из открытых источников — сайтов клиник, приютов, сетей магазинов и груминг-салонов, а также
+      OpenStreetMap. В карточке каждой точки указан источник и дата проверки. Телефоны и часы работы перенесены из
+      источника; если их там не было, поле пустое, а не придуманное.
+    </p>
+    <p>
+      Координаты получены геокодированием адреса через Nominatim (OpenStreetMap), поэтому точка может стоять на
+      квартал в стороне от входа. Перед поездкой позвоните по номеру из карточки.
+    </p>
+  </section>
 
-          <div class="cards">
-            {
-              t.features.items.map((item, i) => (
-                <article class="card">
-                  <span class="card__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.text}</p>
-                </article>
-              ))
-            }
-          </div>
-
-          <div class="family">
-            <h3>{t.features.familyTitle}</h3>
-            <p>{t.features.familyText}</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="why">
-        <div class="wrap">
-          <h2 class="section__title">{t.why.heading}</h2>
-          <p class="section__sub">{t.why.lead}</p>
-          <ul class="why-list">
-            {t.why.items.map((item) => <li>{item}</li>)}
-          </ul>
-          <p class="why__closing">{t.why.closing}</p>
-        </div>
-      </section>
-
-      <section class="section" id="price">
-        <div class="wrap">
-          <h2 class="section__title">{t.price.heading}</h2>
-          <div class="price-box">
-            <div class="price-box__amount">
-              <strong>{t.price.amount}</strong>
-              <span>{t.price.period}</span>
-            </div>
-            <p class="price-box__note">{t.price.note}</p>
-
-            <h3>{t.price.includedTitle}</h3>
-            <ul class="included">
-              {t.price.included.map((item) => <li>{item}</li>)}
-            </ul>
-
-            <div class="price-box__later">
-              <h3>{t.price.laterTitle}</h3>
-              <p>{t.price.later}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="access">
-        <div class="wrap">
-          <h2 class="section__title">{t.form.heading}</h2>
-          <p class="section__sub">{t.form.lead}</p>
-
-          <form class="form-box" id="early-access" novalidate>
-            <div class="field form-box__full">
-              <label for="email">{t.form.emailLabel}</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                inputmode="email"
-                autocomplete="email"
-                placeholder={t.form.emailPlaceholder}
-                aria-describedby="email-error"
-                required
-              />
-              <p class="field__error" id="email-error" data-error="email" role="alert"></p>
-            </div>
-
-            <div class="field">
-              <label for="pet-name">{t.form.petNameLabel}</label>
-              <input
-                id="pet-name"
-                name="petName"
-                type="text"
-                maxlength="60"
-                autocomplete="off"
-                placeholder={t.form.petNamePlaceholder}
-                aria-describedby="pet-name-error"
-                required
-              />
-              <p class="field__error" id="pet-name-error" data-error="petName" role="alert"></p>
-            </div>
-
-            <div class="field">
-              <label for="species">{t.form.speciesLabel}</label>
-              <select id="species" name="species" aria-describedby="species-error" required>
-                <option value="">{t.form.speciesPlaceholder}</option>
-                {
-                  t.form.speciesOptions.map((option) => (
-                    <option value={option.value}>{option.label}</option>
-                  ))
-                }
-              </select>
-              <p class="field__error" id="species-error" data-error="species" role="alert"></p>
-            </div>
-
-            <div class="field form-box__full">
-              <label class="consent" for="consent">
-                <input id="consent" name="consent" type="checkbox" aria-describedby="consent-error" required />
-                <span>{t.form.consentLabel}</span>
-              </label>
-              <p class="field__error" id="consent-error" data-error="consent" role="alert"></p>
-            </div>
-
-            <div class="form-box__full">
-              <button class="btn" type="submit">{t.form.submit}</button>
-              <p class="form__note">{t.form.note}</p>
-            </div>
-          </form>
-
-          <div class="success" id="early-access-success" hidden tabindex="-1" role="status">
-            <h3>{t.form.success}</h3>
-            <p>{t.form.successNote}</p>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-foot">
-      <div class="wrap">
-        <p>{t.footer.text}</p>
-        <p>{t.footer.contactLabel}: <a href={'mailto:' + t.footer.contactEmail}>{t.footer.contactEmail}</a></p>
-        <p class="site-foot__legal">© {year} {t.meta.siteName}</p>
-      </div>
-    </footer>
-
-    <script is:inline define:vars={{ errors: t.form.errors }}>
-      (() => {
-        const form = document.getElementById('early-access');
-        const success = document.getElementById('early-access-success');
-        if (!form || !success) return;
-
-        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-        const fields = {
-          email: form.querySelector('#email'),
-          petName: form.querySelector('#pet-name'),
-          species: form.querySelector('#species'),
-          consent: form.querySelector('#consent'),
-        };
-
-        function setError(name, message) {
-          const node = form.querySelector('[data-error="' + name + '"]');
-          if (node) {
-            node.textContent = message || '';
-            node.dataset.show = message ? 'true' : 'false';
-          }
-          const field = fields[name];
-          if (field) {
-            if (message) field.setAttribute('aria-invalid', 'true');
-            else field.removeAttribute('aria-invalid');
-          }
-        }
-
-        function clearErrors() {
-          Object.keys(fields).forEach((name) => setError(name, ''));
-        }
-
-        function validate() {
-          const issues = [];
-
-          if (!fields.email.value.trim()) {
-            issues.push(['email', errors.emailRequired]);
-          } else if (!emailRe.test(fields.email.value.trim())) {
-            issues.push(['email', errors.emailInvalid]);
-          }
-
-          if (!fields.petName.value.trim()) {
-            issues.push(['petName', errors.petNameRequired]);
-          }
-
-          if (!fields.species.value) {
-            issues.push(['species', errors.speciesRequired]);
-          }
-
-          if (!fields.consent.checked) {
-            issues.push(['consent', errors.consentRequired]);
-          }
-
-          clearErrors();
-          issues.forEach(([name, message]) => setError(name, message));
-          return issues;
-        }
-
-        form.addEventListener('submit', (event) => {
-          event.preventDefault();
-          const issues = validate();
-          if (issues.length) {
-            const first = form.querySelector('[aria-invalid="true"]');
-            if (first) first.focus();
-            return;
-          }
-          form.hidden = true;
-          success.hidden = false;
-          success.focus();
-        });
-
-        Object.keys(fields).forEach((name) => {
-          const field = fields[name];
-          field.addEventListener('input', () => {
-            if (field.getAttribute('aria-invalid') === 'true') setError(name, '');
-          });
-          field.addEventListener('change', () => {
-            if (field.getAttribute('aria-invalid') === 'true') setError(name, '');
-          });
-        });
-      })();
-    </script>
-  </body>
-</html>
+  <script is:inline define:vars={{ spotsData: spots }}>
+    window.__SPOTS__ = spotsData;
+  </script>
+  <script is:inline src="/vendor/leaflet/leaflet.js"></script>
+  <script is:inline src="/portal.js"></script>
+</Base>

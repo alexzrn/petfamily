@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+import { spots, counts, total, CATEGORY_LABELS, CATEGORY_ORDER } from '../lib/portal';
+---
+
+<Base
+  title="Карта Москвы: ветклиники, площадки, приюты, передержка | Моя стая"
+  description={
+    total +
+    ' проверенных адресов Москвы для владельцев собак и кошек: ветклиники, площадки для выгула, приюты, зоогостиницы, груминг и зоомагазины. Фильтры «круглосуточно», «выезд», «стационар», поиск по названию и адресу.'
+  }
+  canonical="/map"
+  active="map"
+>
+  <link slot="head" rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+
+  <section class="wrap page-head">
+    <h1>Карта Москвы</h1>
+    <p class="page-head__lead">
+      {total} точек Москвы. Фильтры по категории и признакам, поиск по названию и адресу, карточка у каждой точки.
+    </p>
+  </section>
+
+  <section class="wrap map-page" aria-label="Фильтры и результаты">
+    <form class="searchbar" role="search" id="search-form" onsubmit="return false">
+      <label class="visually-hidden" for="q">Поиск по названию и адресу</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        placeholder="Название или адрес"
+      />
+      <button class="btn btn--search" type="submit">Найти</button>
+    </form>
+
+    <div class="filters">
+      <div class="chip-row" id="cat-row" role="group" aria-label="Категория">
+        <button class="chip" type="button" data-cat="" aria-pressed="true">Все ({total})</button>
+        {
+          CATEGORY_ORDER.map((cat) => (
+            <button class="chip" type="button" data-cat={cat} aria-pressed="false">
+              {CATEGORY_LABELS[cat]} ({counts[cat]})
+            </button>
+          ))
+        }
+      </div>
+
+      <p class="filter-label" id="flags-label">Признаки</p>
+      <div class="chip-row" id="flag-row" role="group" aria-labelledby="flags-label">
+        <button class="chip chip--flag" type="button" data-flag="open_24h" aria-pressed="false">Круглосуточно</button>
+        <button class="chip chip--flag" type="button" data-flag="home_visit" aria-pressed="false">Выезд</button>
+        <button class="chip chip--flag" type="button" data-flag="inpatient" aria-pressed="false">Стационар</button>
+      </div>
+    </div>
+
+    <div class="map-layout">
+      <div class="map-pane">
+        <div id="map" data-mode="full" role="application" aria-label="Карта Москвы с точками"></div>
+        <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+        <ul class="legend" aria-label="Что означают цвета точек">
+          {
+            CATEGORY_ORDER.map((cat) => (
+              <li>
+                <span class={'pin pin--' + cat} aria-hidden="true" />
+                {CATEGORY_LABELS[cat]}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="list-pane">
+        <ul class="spot-list" id="spot-list"></ul>
+        <p class="empty" id="empty" hidden>
+          Ничего не нашлось. Сбросьте фильтры или поищите по другой улице — часть точек есть только на карте.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ spotsData: spots }}>
+    window.__SPOTS__ = spotsData;
+  </script>
+  <script is:inline src="/vendor/leaflet/leaflet.js"></script>
+  <script is:inline src="/portal.js"></script>
+</Base>

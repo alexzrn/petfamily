@@ -1,0 +1,103 @@
+---
+import Base from '../../layouts/Base.astro';
+import { spots, CATEGORY_LABELS, telHref } from '../../lib/portal';
+
+export function getStaticPaths() {
+  return spots.map((spot) => ({ params: { id: spot.id }, props: { spot } }));
+}
+
+const { spot } = Astro.props;
+const label = CATEGORY_LABELS[spot.category];
+const flags = [
+  spot.open_24h ? 'Круглосуточно' : null,
+  spot.home_visit ? 'Выезд на дом' : null,
+  spot.inpatient ? 'Стационар' : null,
+].filter(Boolean);
+const checked = spot.checked_at.split('-').reverse().join('.');
+---
+
+<Base
+  title={spot.name + ' — ' + label.toLowerCase() + ', ' + spot.address.replace('Москва, ', '') + ' | Моя стая'}
+  description={label + ': ' + spot.name + ', ' + spot.address + '. Телефон, часы работы, источник данных и точка на карте Москвы.'}
+  canonical={'/spot/' + spot.id}
+  active="map"
+>
+  <section class="wrap spot-page">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="/">Главная</a>
+      <span aria-hidden="true">/</span>
+      <a href="/map">Карта</a>
+      <span aria-hidden="true">/</span>
+      <span>{spot.name}</span>
+    </nav>
+
+    <article class="spot-card-page">
+      <p class="spot-card-page__cat">{label}</p>
+      <h1>{spot.name}</h1>
+      <p class="spot-card-page__addr">{spot.address}</p>
+
+      {flags.length > 0 && (
+        <ul class="badges">
+          {flags.map((f) => (
+            <li>{f}</li>
+          ))}
+        </ul>
+      )}
+
+      <dl class="spot-facts">
+        <div>
+          <dt>Телефон</dt>
+          <dd>{spot.phone ? <a href={telHref(spot.phone)}>{spot.phone}</a> : 'не указан в источнике'}</dd>
+        </div>
+        <div>
+          <dt>Часы работы</dt>
+          <dd>{spot.hours ?? 'не указаны в источнике'}</dd>
+        </div>
+        <div>
+          <dt>Сайт</dt>
+          <dd>
+            {
+              spot.site ? (
+                <a href={spot.site} rel="nofollow noopener" target="_blank">
+                  {spot.site.replace(/^https?:\/\//, '')}
+                </a>
+              ) : (
+                'нет'
+              )
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Цена</dt>
+          <dd>{spot.price ?? 'не указана'}</dd>
+        </div>
+        <div>
+          <dt>Источник данных</dt>
+          <dd>
+            <a href={spot.source} rel="nofollow noopener" target="_blank">
+              {spot.source.replace(/^https?:\/\//, '').slice(0, 70)}
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt>Проверено</dt>
+          <dd>{checked}</dd>
+        </div>
+        <div>
+          <dt>Координаты</dt>
+          <dd>{spot.lat.toFixed(6)}, {spot.lon.toFixed(6)}</dd>
+        </div>
+      </dl>
+
+      <div class="spot-actions">
+        {spot.phone && <a class="btn" href={telHref(spot.phone)}>Позвонить</a>}
+        <a class="btn btn--ghost" href={'/map?spot=' + spot.id}>Показать на карте</a>
+      </div>
+
+      <p class="spot-note">
+        Данные перенесены из открытого источника и не обновляются автоматически. Если телефон или часы изменились —
+        ориентируйтесь на сайт организации.
+      </p>
+    </article>
+  </section>
+</Base>

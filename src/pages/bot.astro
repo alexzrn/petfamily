@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Бот «Моя стая» — напоминания о прививках и таблетках | Моя стая"
+  description="Telegram-бот «Моя стая»: питомцы и напоминания о прививках, таблетках и визитах к врачу. Список команд, текущий статус запуска и что нужно для старта."
+  canonical="/bot"
+  active="bot"
+>
+  <section class="wrap page-head">
+    <h1>Бот «Моя стая»</h1>
+    <p class="page-head__lead">
+      Напоминания о прививках, обработке от клещей, таблетках и визитах к врачу — в Telegram. Диалог без меню и кнопок:
+      бот спрашивает, вы отвечаете. Питомцы и напоминания хранятся в FamilyOS API.
+    </p>
+    <p class="status"><span class="status__dot" aria-hidden="true"></span> Статус: MVP собран, в Telegram не запущен — нужен токен BotFather</p>
+  </section>
+
+  <section class="wrap bot-page">
+    <div class="bot-grid">
+      <article class="bot-card">
+        <h2>Команды</h2>
+        <ul class="cmd-list">
+          <li><code>/start</code><span>начать, короткая инструкция</span></li>
+          <li><code>/addpet</code><span>добавить питомца: имя и вид</span></li>
+          <li><code>/pets</code><span>мои питомцы</span></li>
+          <li><code>/remind</code><span>напоминание: питомец, текст, дата и время</span></li>
+          <li><code>/list</code><span>ближайшие напоминания</span></li>
+          <li><code>/cancel</code><span>отменить текущий шаг</span></li>
+        </ul>
+      </article>
+
+      <article class="bot-card">
+        <h2>Как это работает</h2>
+        <ol class="steps">
+          <li>Добавляете питомца командой <code>/addpet</code> — бот запоминает имя и вид.</li>
+          <li>Ставите напоминание <code>/remind</code> в формате <code>ГГГГ-ММ-ДД ЧЧ:ММ</code>, часовой пояс — Москва.</li>
+          <li>Крон раз в 5 минут проверяет срок и присылает сообщение, после отправки помечает его отправленным.</li>
+        </ol>
+        <p class="bot-note">
+          Состояние диалога хранится в памяти процесса: после перезапуска бот попросит команду заново. Один процесс
+          опроса, без вебхуков.
+        </p>
+      </article>
+    </div>
+
+    <article class="bot-card bot-card--wide">
+      <h2>Что нужно для запуска</h2>
+      <p>
+        Код бота лежит в репозитории в каталоге <code>bot/</code>: длинный опрос Telegram, диалоги и хранение в FamilyOS
+        API. Секретов в репозитории нет — токен и ключ API передаются только через переменные окружения:
+      </p>
+      <pre class="code-block"><code>TELEGRAM_BOT_TOKEN=…
+FAMILYOS_API_URL=https://familyos.beliberde.net/api/v1
+FAMILYOS_API_KEY=…</code></pre>
+      <p>
+        После выдачи токена бот запускается как отдельный процесс, а <code>check_due.py</code> ставится в крон раз в пять
+        минут. Пока токена нет, кнопка «открыть в Telegram» не показывается — ссылка на неработающего бота хуже, чем её
+        отсутствие.
+      </p>
+    </article>
+
+    <article class="bot-card bot-card--wide">
+      <h2>Пока бот не запущен</h2>
+      <p>
+        Напоминания можно держать вручную: карточка питомца и заметки — в <code>data/pets</code>, точки для прогулок и
+        врачей — на <a href="/map">карте</a>. Если потерялся питомец — <a href="/lost">доска потеряшек</a>.
+      </p>
+    </article>
+  </section>
+</Base>
