@@ -1,8 +1,10 @@
 # petfamily
 
-Minimal Astro starter for Cloudflare Pages.
+Фронтенд проекта «Моя стая» (проект FamilyOS 12) — семейный центр заботы о собаке.
 
-- Build: `npm run build` → `dist`
-- Hello World.
+- Стек: Astro 7, Node >= 22.23.4
+- Сборка: `npm ci && npm run build` → `dist`
+- Хостинг: Cloudflare Pages (проект `petfamily`, домен `petfamily.beliberde.net` через nginx)
+- Бэкенд: FamilyOS API (`https://familyos.beliberde.net/api/v1`)
 
-auto-deploy test 2026-11-01T02:45:30Z
+Деплой — автоматический: пуш в `main` → сборка и публикация на Pages.
