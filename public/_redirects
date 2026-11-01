@@ -1,5 +1,0 @@
-# Cloudflare Pages: отдаём страницы без расширения и без редиректа на слеш.
-/map /map.html 200
-/lost /lost.html 200
-/bot /bot.html 200
-/spot/:id /spot/:id.html 200
