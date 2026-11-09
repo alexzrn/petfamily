@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./Layout";
+import RequireAuth from "./RequireAuth";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -16,9 +17,23 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-          <Route path="pets" element={<Pets />} />
+          <Route
+            path="pets"
+            element={
+              <RequireAuth>
+                <Pets />
+              </RequireAuth>
+            }
+          />
           <Route path="map" element={<MapPage />} />
-          <Route path="walks" element={<Walks />} />
+          <Route
+            path="walks"
+            element={
+              <RequireAuth>
+                <Walks />
+              </RequireAuth>
+            }
+          />
           <Route path="meetups" element={<Meetups />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
