@@ -8,6 +8,20 @@ on:
 jobs:
   api:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: petfamily
+          MYSQL_USER: petfamily
+          MYSQL_PASSWORD: petfamily
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     defaults:
       run:
         working-directory: apps/api
@@ -17,5 +31,13 @@ jobs:
         with:
           go-version: "1.23"
           cache-dependency-path: apps/api/go.sum
+
+      # канон миграций лежит в db/, копия внутри образа не должна разъезжаться
+      - name: миграции не разъехались
+        working-directory: .
+        run: diff -r db/migrations apps/api/internal/store/migrations
+
       - run: go vet ./...
       - run: go test ./... -race
+        env:
+          MYSQL_DSN: petfamily:petfamily@tcp(127.0.0.1:3306)/petfamily?parseTime=true&charset=utf8mb4
