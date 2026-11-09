@@ -1,0 +1,7 @@
+.git
+.gitignore
+.hermes
+apps/web/node_modules
+apps/web/dist
+*.tgz
+*.log

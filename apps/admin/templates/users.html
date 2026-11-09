@@ -1,0 +1,25 @@
+{{define "content"}}
+<h1>Пользователи</h1>
+<table>
+  <tr><th>Email</th><th>Имя</th><th>Питомцев</th><th>Прогулок</th><th>Создан</th><th>Статус</th><th></th></tr>
+  {{range .Items}}
+  <tr>
+    <td>{{.Email}}</td>
+    <td>{{.DisplayName}}</td>
+    <td>{{.Pets}}</td>
+    <td>{{.Walks}}</td>
+    <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+    <td>{{if .Blocked}}<span class="blocked">заблокирован</span>{{else}}активен{{end}}</td>
+    <td>
+      {{if .Blocked}}
+      <form method="post" action="/users/{{.ID}}/unblock"><button type="submit">разблокировать</button></form>
+      {{else}}
+      <form method="post" action="/users/{{.ID}}/block"><button type="submit">заблокировать</button></form>
+      {{end}}
+    </td>
+  </tr>
+  {{else}}
+  <tr><td colspan="7">пока никого</td></tr>
+  {{end}}
+</table>
+{{end}}

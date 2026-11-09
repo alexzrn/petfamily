@@ -43,3 +43,17 @@ jobs:
       - run: go test ./... -race -p 1
         env:
           MYSQL_DSN: petfamily:petfamily@tcp(127.0.0.1:3306)/petfamily?parseTime=true&charset=utf8mb4
+
+  admin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache-dependency-path: apps/admin/go.sum
+      - run: go vet ./...
+      - run: go test ./...

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: petfamily
+  labels:
+    app.kubernetes.io/part-of: petfamily
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: petfamily-quota
+  namespace: petfamily
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.memory: 1Gi
+    pods: "6"

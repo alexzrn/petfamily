@@ -1,0 +1,16 @@
+{{define "content"}}
+<h1>Встречи</h1>
+<table>
+  <tr><th>Название</th><th>Автор</th><th>Когда</th><th>Координаты</th></tr>
+  {{range .Items}}
+  <tr>
+    <td>{{.Title}}</td>
+    <td>{{.Email}}</td>
+    <td>{{.StartsAt.Format "2006-01-02 15:04"}}</td>
+    <td>{{printf "%.5f" .Lat}}, {{printf "%.5f" .Lng}}</td>
+  </tr>
+  {{else}}
+  <tr><td colspan="4">встреч нет</td></tr>
+  {{end}}
+</table>
+{{end}}

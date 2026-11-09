@@ -1,0 +1,17 @@
+{{define "content"}}
+<h1>Прогулки</h1>
+<table>
+  <tr><th>Пользователь</th><th>Начало</th><th>Конец</th><th>Дистанция, м</th><th>Точек</th></tr>
+  {{range .Items}}
+  <tr>
+    <td>{{.Email}}</td>
+    <td>{{.StartedAt.Format "2006-01-02 15:04"}}</td>
+    <td>{{.EndedAt.Format "2006-01-02 15:04"}}</td>
+    <td>{{.DistanceM}}</td>
+    <td>{{.Points}}</td>
+  </tr>
+  {{else}}
+  <tr><td colspan="5">прогулок нет</td></tr>
+  {{end}}
+</table>
+{{end}}

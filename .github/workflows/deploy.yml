@@ -1,0 +1,42 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/petfamily-api:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/petfamily-api:latest
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/admin/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/petfamily-admin:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/petfamily-admin:latest
+
+      # раскатку делает сам VPS по таймеру: kubeconfig остаётся на сервере,
+      # GitHub к кластеру доступа не имеет

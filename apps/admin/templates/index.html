@@ -1,0 +1,10 @@
+{{define "content"}}
+<h1>Сводка</h1>
+<div class="cards">
+  <div class="card">Пользователи<b>{{.Counters.Users}}</b></div>
+  <div class="card">Питомцы<b>{{.Counters.Pets}}</b></div>
+  <div class="card">Прогулки<b>{{.Counters.Walks}}</b></div>
+  <div class="card">Встречи<b>{{.Counters.Meetups}}</b></div>
+  <div class="card">Заблокированы<b>{{.Counters.Blocked}}</b></div>
+</div>
+{{end}}
