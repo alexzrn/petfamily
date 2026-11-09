@@ -6,11 +6,15 @@ import (
 	"testing"
 )
 
+func testRouter() http.Handler {
+	return buildRouter(http.NotFoundHandler())
+}
+
 func TestHealthz(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	rr := httptest.NewRecorder()
 
-	newRouter().ServeHTTP(rr, req)
+	testRouter().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("код %d, ожидали 200", rr.Code)
@@ -24,7 +28,7 @@ func TestUnknownPath(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/nope", nil)
 	rr := httptest.NewRecorder()
 
-	newRouter().ServeHTTP(rr, req)
+	testRouter().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusNotFound {
 		t.Fatalf("код %d, ожидали 404", rr.Code)

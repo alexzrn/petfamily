@@ -38,6 +38,8 @@ jobs:
         run: diff -r db/migrations apps/api/internal/store/migrations
 
       - run: go vet ./...
-      - run: go test ./... -race
+      # пакеты гоняются последовательно (-p 1): тесты делят одну базу,
+      # и параллельный прогон роняет миграции соседнего пакета
+      - run: go test ./... -race -p 1
         env:
           MYSQL_DSN: petfamily:petfamily@tcp(127.0.0.1:3306)/petfamily?parseTime=true&charset=utf8mb4

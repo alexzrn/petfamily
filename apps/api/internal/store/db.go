@@ -7,6 +7,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// Store — тонкая обёртка над пулом соединений: никакой бизнес-логики, только SQL.
+type Store struct {
+	db *sql.DB
+}
+
+func NewStore(db *sql.DB) *Store { return &Store{db: db} }
+
 // Open открывает пул соединений и проверяет, что база отвечает.
 func Open(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn)

@@ -2,10 +2,11 @@ package main
 
 import "net/http"
 
-// newRouter собирает все маршруты API в одном месте.
-func newRouter() http.Handler {
+// buildRouter вешает healthz и монтирует API под /api/v1/.
+func buildRouter(api http.Handler) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", healthz)
+	mux.Handle("/api/v1/", api)
 	return mux
 }
 

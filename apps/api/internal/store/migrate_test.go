@@ -27,7 +27,11 @@ func TestMigrate(t *testing.T) {
 	}
 	defer db.Close()
 
-	// чистая база: сносим всё, что осталось от предыдущих прогонов
+	// чистая база: сносим всё, что осталось от предыдущих прогонов.
+	// Внешние ключи на время сноса выключены, иначе порядок удаления важен.
+	if _, err := db.Exec("SET FOREIGN_KEY_CHECKS = 0"); err != nil {
+		t.Fatal(err)
+	}
 	rows, err := db.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()")
 	if err != nil {
 		t.Fatal(err)
@@ -45,6 +49,9 @@ func TestMigrate(t *testing.T) {
 		if _, err := db.Exec("DROP TABLE IF EXISTS `" + name + "`"); err != nil {
 			t.Fatal(err)
 		}
+	}
+	if _, err := db.Exec("SET FOREIGN_KEY_CHECKS = 1"); err != nil {
+		t.Fatal(err)
 	}
 
 	if err := Migrate(db); err != nil {
