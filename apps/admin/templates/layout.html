@@ -24,10 +24,10 @@
 <body>
 <header>
   <strong>PetFamily</strong>
-  <a href="/">Сводка</a>
-  <a href="/users">Пользователи</a>
-  <a href="/walks">Прогулки</a>
-  <a href="/meetups">Встречи</a>
+  <a href="{{.Base}}/">Сводка</a>
+  <a href="{{.Base}}/users">Пользователи</a>
+  <a href="{{.Base}}/walks">Прогулки</a>
+  <a href="{{.Base}}/meetups">Встречи</a>
 </header>
 <main>
 {{template "content" .}}

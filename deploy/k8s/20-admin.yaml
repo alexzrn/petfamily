@@ -25,6 +25,8 @@ spec:
           env:
             - name: LISTEN_ADDR
               value: ":8081"
+            - name: ADMIN_BASE_PATH
+              value: "/admin"
             - name: MYSQL_DSN
               valueFrom:
                 secretKeyRef:

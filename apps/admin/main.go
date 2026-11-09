@@ -21,6 +21,7 @@ type app struct {
 	tmpl     map[string]*template.Template
 	user     string
 	password string
+	base     string
 }
 
 func main() {
@@ -42,7 +43,10 @@ func main() {
 	}
 	defer db.Close()
 
-	a := &app{db: db, tmpl: parseTemplates(), user: user, password: password}
+	// base — префикс пути, если админка живёт не в корне домена,
+	// например /admin за общим nginx. Шаблоны строят ссылки от него.
+	base := os.Getenv("ADMIN_BASE_PATH")
+	a := &app{db: db, tmpl: parseTemplates(), user: user, password: password, base: base}
 	log.Printf("admin listening on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, a.routes()))
 }
@@ -165,7 +169,7 @@ func (a *app) handleBlock(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ошибка базы: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/users", http.StatusSeeOther)
+	http.Redirect(w, r, a.base+"/users", http.StatusSeeOther)
 }
 
 func (a *app) handleUnblock(w http.ResponseWriter, r *http.Request) {
@@ -175,7 +179,7 @@ func (a *app) handleUnblock(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ошибка базы: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/users", http.StatusSeeOther)
+	http.Redirect(w, r, a.base+"/users", http.StatusSeeOther)
 }
 
 type walkRow struct {
@@ -260,6 +264,7 @@ func (a *app) render(w http.ResponseWriter, name string, data map[string]any) {
 		http.Error(w, "нет шаблона", http.StatusInternalServerError)
 		return
 	}
+	data["Base"] = a.base
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := t.ExecuteTemplate(w, "layout", data); err != nil {
 		log.Printf("шаблон %s: %v", name, err)

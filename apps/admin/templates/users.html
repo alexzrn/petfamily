@@ -12,9 +12,9 @@
     <td>{{if .Blocked}}<span class="blocked">заблокирован</span>{{else}}активен{{end}}</td>
     <td>
       {{if .Blocked}}
-      <form method="post" action="/users/{{.ID}}/unblock"><button type="submit">разблокировать</button></form>
+      <form method="post" action="{{.Base}}/users/{{.ID}}/unblock"><button type="submit">разблокировать</button></form>
       {{else}}
-      <form method="post" action="/users/{{.ID}}/block"><button type="submit">заблокировать</button></form>
+      <form method="post" action="{{.Base}}/users/{{.ID}}/block"><button type="submit">заблокировать</button></form>
       {{end}}
     </td>
   </tr>
