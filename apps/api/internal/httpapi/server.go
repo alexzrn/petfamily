@@ -41,7 +41,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/v1/meetups", s.auth(s.handleCreateMeetup))
 	mux.HandleFunc("GET /api/v1/meetups", s.auth(s.handleListMeetups))
 
-	return mux
+	return corsMiddleware(mux, allowedOriginsFromEnv())
 }
 
 type ctxKey string
