@@ -88,6 +88,39 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+export interface WalkPoint {
+  lat: number;
+  lng: number;
+  at: string;
+}
+
+export interface NewWalk {
+  pet_id?: string;
+  started_at: string;
+  ended_at: string;
+  points: WalkPoint[];
+}
+
+export interface Walk {
+  id: string;
+  user_id: string;
+  pet_id: string | null;
+  started_at: string;
+  ended_at: string;
+  distance_m: number;
+  h3_cells: number;
+  points?: WalkPoint[];
+}
+
+export interface LiveWalk {
+  walk_id: string;
+  user_id: string;
+  lat: number;
+  lng: number;
+  distance_m: number;
+  ended_at: string;
+}
+
 export const api = {
   register: (email: string, password: string, display_name: string) =>
     request<AuthPayload>("/api/v1/auth/register", {
@@ -107,4 +140,17 @@ export const api = {
   },
   createPet: (pet: NewPet) =>
     request<Pet>("/api/v1/pets", { method: "POST", body: JSON.stringify(pet) }),
+  createWalk: (walk: NewWalk) =>
+    request<Walk>("/api/v1/walks", { method: "POST", body: JSON.stringify(walk) }),
+  listWalks: async (limit = 20): Promise<Walk[]> => {
+    const data = await request<{ items: Walk[] }>(`/api/v1/walks?limit=${limit}`);
+    return data.items;
+  },
+  getWalk: (id: string) => request<Walk>(`/api/v1/walks/${encodeURIComponent(id)}`),
+  liveWalks: async (lat: number, lng: number, meters = 2000): Promise<LiveWalk[]> => {
+    const data = await request<{ items: LiveWalk[] }>(
+      `/api/v1/live/walks?lat=${lat}&lng=${lng}&meters=${meters}`,
+    );
+    return data.items;
+  },
 };
